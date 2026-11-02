@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>TankLoong</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <symbol id="i-wave" viewBox="0 0 24 24"><path d="M4 10v4m4-8v12m4-16v20m4-16v12m4-8v4"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7V5a1 1 0 0 1 1-1h5l2 3h9a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7Z"/><path d="M3 8h18"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-note" viewBox="0 0 24 24"><path d="M9 17V5l11-2v12M9 8l11-2"/><ellipse cx="5.5" cy="18" rx="3.5" ry="3"/><ellipse cx="16.5" cy="16" rx="3.5" ry="3"/></symbol>
+    <symbol id="i-disc" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/><path d="M6 11a6 6 0 0 1 5-5m2 12a6 6 0 0 0 5-5"/></symbol>
+  </defs></svg>
+  <div class="ambient ambient-blue"></div><div class="ambient ambient-purple"></div><div class="grid-bg"></div>
+
+  <header class="titlebar">
+    <div class="brand"><span class="brand-icon"><svg><use href="#i-wave"/></svg></span><span>Tank<span class="brand-light">Loong</span></span><span class="edition">DESKTOP</span></div>
+    <div class="titlebar-right"><span class="connection"><i id="connection-dot"></i><span id="connection-text">正在连接音乐服务</span></span><div class="window-controls"><button data-window="minimize" aria-label="最小化">─</button><button data-window="maximize" aria-label="最大化">□</button><button data-window="close" aria-label="关闭">×</button></div></div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <div class="eyebrow"><span></span> YOUR MUSIC. YOUR SPACE.</div>
+        <h1 id="hero-title">在声音里，<br>找到你的<span class="gradient-text">频率。</span></h1>
+        <p class="hero-description">搜索喜欢的旋律，将每一份心动，收藏到本地。</p>
+        <div class="hero-tags"><span><svg><use href="#i-wave"/></svg>多源音乐搜索</span><span class="tag-divider"></span><span>MP3 自动转换</span><span class="tag-divider"></span><span>本地保存</span></div>
+      </div>
+      <div class="sound-art" aria-hidden="true">
+        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div>
+        <span class="star star-one"></span><span class="star star-two"></span>
+        <div class="vinyl"><div class="vinyl-label"><svg><use href="#i-wave"/></svg><span>TANKLOONG</span></div><i class="spindle"></i></div>
+        <div class="floating-label glass"><span class="tiny-wave"><i></i><i></i><i></i><i></i><i></i></span><div>为热爱，留一份声音<small>KEEP THE FREQUENCY</small></div></div>
+        <span class="art-caption">DISCOVER · DOWNLOAD · ENJOY</span>
+      </div>
+    </section>
+
+    <section class="workspace glass" aria-label="音乐搜索工作台">
+      <div class="steps"><span class="step active" id="step-one"><b>01</b>选择位置</span><span class="step-line"></span><span class="step" id="step-two"><b>02</b>发现音乐</span><span class="step-line"></span><span class="step" id="step-three"><b>03</b>保存为 MP3</span><span class="workspace-caption">A LITTLE SPACE FOR YOUR SOUND</span></div>
+      <div class="directory-row">
+        <div class="directory-symbol"><svg><use href="#i-folder"/></svg></div>
+        <div class="directory-info"><div class="directory-heading">音乐保存位置 <span id="directory-badge">开始前，先选一个文件夹</span></div><p id="directory-path">让喜欢的音乐，有一个自己的位置。</p></div>
+        <button class="button button-secondary" id="choose-directory">选择文件夹<svg><use href="#i-arrow"/></svg></button>
+      </div>
+      <form id="search-form" class="search-form">
+        <svg class="search-symbol"><use href="#i-search"/></svg>
+        <input id="keyword" name="keyword" aria-label="歌曲名称或歌手" placeholder="输入歌名或歌手，发现下一首喜欢…" maxlength="200" autocomplete="off" disabled>
+        <span class="keyboard-hint">↵</span>
+        <button class="button button-primary" id="search-button" type="submit" disabled><span>搜索音乐</span><svg><use href="#i-arrow"/></svg></button>
+      </form>
+      <div class="search-meta"><span id="search-hint">选择保存位置后，即可开始搜索</span><span class="format-note"><i></i> MP3 <span>·</span> 高品质 VBR</span></div>
+    </section>
+
+    <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+    <section class="library">
+      <div class="results-panel">
+        <div class="section-heading"><h2>发现音乐 <span id="result-count">等待搜索</span></h2><span id="source-status" class="subtle">你的下一首单曲，就在这里</span></div>
+        <div id="results" class="results glass">
+          <div class="empty-state" id="search-empty"><div class="empty-orbit"><svg><use href="#i-search"/></svg></div><h3>好音乐，值得被找到</h3><p>输入一首歌的名字，开启你的音乐收藏。</p><div class="source-chips"><span>网易云</span><span>QQ 音乐</span><span>酷我</span><span>咪咕</span><span>千千</span></div></div>
+          <div id="track-list" role="list" aria-label="搜索结果"></div>
+        </div>
+      </div>
+      <aside class="downloads-panel">
+        <div class="section-heading"><h2>本次下载 <span id="download-count">0</span></h2><button class="text-button" id="open-directory" disabled>打开文件夹<svg><use href="#i-arrow"/></svg></button></div>
+        <div class="downloads glass"><div class="downloads-heading"><span class="download-icon"><svg><use href="#i-download"/></svg></span><div>把喜欢，留在身边<small>下载完成后自动转换为 MP3</small></div></div><div id="download-list" aria-live="polite"><div class="download-empty"><span class="dashed-line"></span><p>还没有下载任务</p><small>搜索后，点击歌曲右侧的下载按钮</small></div></div><div class="download-footer"><svg><use href="#i-check"/></svg>直接保存到你选择的位置</div></div>
+      </aside>
+    </section>
+    <footer><span class="footer-brand"><svg><use href="#i-wave"/></svg>为每一份热爱，保留回响。</span><span>TankLoong <span id="app-version">3.0</span><i></i>Powered by musicdl & FFmpeg</span></footer>
+  </main>
+</body>
+</html>

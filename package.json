@@ -1,0 +1,33 @@
+{
+  "name": "tankloong",
+  "version": "3.0.0",
+  "private": true,
+  "description": "TankLoong · 在声音里，找到你的频率",
+  "main": "electron/main.cjs",
+  "author": "TankLoong",
+  "scripts": {
+    "start": "node tools/start.cjs",
+    "test": "node --test tests/bridge.test.cjs",
+    "test:ui": "node tools/smoke-ui.cjs",
+    "pack": "electron-builder --win dir --x64"
+  },
+  "devDependencies": {
+    "electron": "^39.0.0",
+    "electron-builder": "^26.0.12",
+    "playwright-core": "^1.56.0"
+  },
+  "build": {
+    "appId": "com.tankloong.desktop",
+    "productName": "TankLoong",
+    "electronDist": "node_modules/electron/dist",
+    "directories": { "output": "release" },
+    "files": ["electron/**", "ui/**", "assets/**", "package.json"],
+    "extraResources": [
+      { "from": "dist/tankloong-backend", "to": "backend" },
+      { "from": "THIRD_PARTY_NOTICES.txt", "to": "THIRD_PARTY_NOTICES.txt" },
+      { "from": "licenses", "to": "licenses" },
+      { "from": "ffmpeg/LICENSE.txt", "to": "FFMPEG-LICENSE.txt" }
+    ],
+    "win": { "icon": "assets/tankloong.ico", "signAndEditExecutable": false }
+  }
+}

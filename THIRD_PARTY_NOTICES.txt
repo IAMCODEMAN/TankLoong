@@ -1,0 +1,24 @@
+TankLoong bundles the FFmpeg executable for MP3 conversion.
+
+The bundled build is FFmpeg 9.0.1 Essentials from gyan.dev. Its license text
+is included in `ffmpeg/LICENSE.txt`. FFmpeg license information and source code
+are available at:
+https://ffmpeg.org/
+
+The build provider page is:
+https://www.gyan.dev/ffmpeg/builds/
+
+This application also includes third-party Python packages. Their license notices
+are provided by their respective distributions.
+
+MusicDL 2.13.6 by Zhenchao Jin / CharlesPikachu:
+https://github.com/CharlesPikachu/musicdl
+License: PolyForm-Noncommercial-1.0.0 (not MIT).
+See licenses/musicdl-PolyForm-Noncommercial-1.0.0.txt.
+
+Glass CSS adapted from Liquid Glass Effect by Kevin Ramirez (2025):
+https://github.com/kevinbism/liquid-glass-effect
+License: MIT. Full notice: licenses/liquid-glass-effect-MIT.txt.
+
+Electron and its bundled Chromium/Node.js components retain their notices in
+the desktop release (LICENSE.electron.txt and LICENSES.chromium.html).

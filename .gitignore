@@ -1,0 +1,23 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.pytest-tmp/
+logs/
+dist/
+build/
+musicdl_outputs/
+*.log
+
+# Third-party binaries ship with GitHub Releases instead of git.
+ffmpeg/bin/
+
+# Local agent/work notes, not part of the published project.
+agent.md
+
+# The PyInstaller spec is a maintained build definition, not a generated file.
+!TankLoong.spec
+node_modules/
+release/
+artifacts/
+pytest-of-*/
