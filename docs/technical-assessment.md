@@ -40,3 +40,17 @@ Electron 自动化启动真实窗口，检查目录选择前禁用搜索、结�
 自动测试与最终发布包验证结果见工作区根目录 `agent.md` 的最终记录。
 
 最终验证：29 项 Python 测试、2 项 Node 通信测试全部通过；源码版和发布包版 Electron UI 自动化均通过。最终发布包真实搜索“晴天”返回 16 条，完成实际下载、MP3 转码，并对 5,956,974 字节的产物完整解码成功。真实窗口截图为 `screenshots/tankloong-electron-live.png`。发布入口：`release/win-unpacked/TankLoong.exe`。
+
+## 3.0.1 启动故障修复
+
+用户随后反馈：双击发布包出现 `ERR_FAILED (-2) loading file:///.../index.html`。此前带 `--no-sandbox` 的自动化验证不能证明普通桌面启动通过，因此不能将上一节测试结果解读为正常启动可靠性已经得到验证。
+
+确认 `ui/index.html`、`styles.css` 和 `app.js` 均已进入 `resources/app.asar`，主进程可读；不能归因为 HTML 没有打包。3.0.1 将本地 `file://` 加载改为标准、安全的 `tankloong://app/` 内部协议，由主进程从 `app.getAppPath()` 读取静态资源。协议只暴露三个固定资源，拒绝其他主机、任意路径和非 GET/HEAD 请求；继续保留 sandbox、contextIsolation、nodeIntegration=false 和原 CSP。没有使用禁用沙箱作为产品修复。
+
+新增启动前资源校验、成功/失败及渲染器退出日志 `userData/startup.log`；新增归档资源检查并接入打包命令。版本更新为 3.0.1。
+
+本轮验证：5 项 Node 测试通过（含真实 Python 通信及三个资源协议回归）；打包完整性检查通过；发布包带显式 `--no-sandbox` 的界面功能回归通过。默认沙箱的直接 EXE 启动在当前 Codex 执行环境中于应用日志产生前退出，代码为 `0x80000003`，禁用 GPU 亦然；Windows Shell 启动也未观察到成功日志。因此本轮尚不能声称普通用户双击启动已实机验证。未新增联网下载测试，核心爬虫和转码代码未改动。
+
+## 2026-11-04 后续结论与首发验证
+
+进一步实验定位到生成目录继承的 Windows Low Mandatory Level：同一份 Electron 和发布包复制到标准目录，或仅将发布目录完整性级别恢复为 Medium 后，默认沙箱启动恢复。新增 tools/prepare-release.cjs 仅处理固定发布目录，并接入 pack。首发前再次通过 5 项 Node 测试、发布包资源检查及无调试器默认沙箱原生 EXE 启动检查。上述早期启动验证限制已解除；本次未重新联网下载歌曲。

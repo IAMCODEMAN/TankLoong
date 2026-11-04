@@ -1,15 +1,15 @@
 {
   "name": "tankloong",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "private": true,
   "description": "TankLoong · 在声音里，找到你的频率",
   "main": "electron/main.cjs",
   "author": "TankLoong",
   "scripts": {
     "start": "node tools/start.cjs",
-    "test": "node --test tests/bridge.test.cjs",
+    "test": "node --test tests/bridge.test.cjs tests/assets.test.cjs",
     "test:ui": "node tools/smoke-ui.cjs",
-    "pack": "electron-builder --win dir --x64"
+    "pack": "electron-builder --win dir --x64 && node tools/prepare-release.cjs && node tools/verify-release.cjs && node tools/check-startup.cjs"
   },
   "devDependencies": {
     "electron": "^39.0.0",

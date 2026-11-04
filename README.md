@@ -13,21 +13,23 @@ TankLoong 是一个 Windows 桌面音乐下载器：输入歌名或歌手，同�
 
 ## 下载
 
-前往 **[Releases](https://github.com/IAMCODEMAN/TankLoong/releases/latest)** 下载最新版本，两种形式任选其一：
+前往 **[Releases](https://github.com/IAMCODEMAN/TankLoong/releases/latest)** 下载首个公开发行版 **v3.0.1**：
 
 | 文件 | 说明 |
 | --- | --- |
-| `TankLoong-Setup-3.0.0.exe` | **安装版**：双击安装，写入开始菜单，可从「应用和功能」卸载 |
-| `TankLoong-3.0.0-win-x64-portable.zip` | **免安装版**：解压到任意文件夹，双击 `TankLoong.exe` 运行 |
+| `TankLoong-3.0.1-win-x64-portable.zip` | **免安装版**：完整解压后，双击文件夹中的 `TankLoong.exe` 运行 |
+| `SHA256SUMS.txt` | 下载包的 SHA-256 校验值 |
 
-两个包的应用内容一致，都已内置 Electron、Python 音乐服务、musicdl 与 FFmpeg，**目标机器不需要安装 Python、Node.js 或 FFmpeg**。
+发布包已内置 Electron、Python 音乐服务、musicdl 与 FFmpeg，**无需另装 Python、Node.js 或 FFmpeg**。请保留解压后的完整文件夹，不要单独移动 EXE，也不要直接在压缩包中运行。
+
+这是本仓库第一个 GitHub Release，沿用应用现有版本号 **3.0.1**，包含最新版 Windows 启动修复。本次提供免安装版。
 
 > **SmartScreen 提示**：本版本未做代码签名，Windows 可能显示「已保护你的电脑 / 未知发布者」。可点击「更多信息」→「仍要运行」。如果不放心，可以下载源码自行构建。
 
 ### 系统要求
 
 - Windows 10 / 11，64 位
-- 约 1 GB 磁盘空间（安装版解压后）
+- 建议预留 1 GB 磁盘空间，另需歌曲保存空间
 - 下载 MP3 需要能访问对应音乐平台的网络
 
 ## 使用
@@ -55,7 +57,7 @@ TankLoong 是一个 Windows 桌面音乐下载器：输入歌名或歌手，同�
 | 音乐服务 | Python JSON Lines 子进程（PyInstaller 打包为独立 exe） |
 | 搜索与下载 | [musicdl](https://github.com/CharlesPikachu/musicdl) 2.13.6（咪咕 / 网易云 / QQ / 酷我 / 千千） |
 | 转码 | 内置 FFmpeg 9.0.1 Essentials（gyan.dev），`libmp3lame` |
-| 打包 | electron-builder 26（安装版 NSIS + 目录版，目录版再压缩为免安装 zip） |
+| 打包 | electron-builder 26（目录版，压缩为免安装 ZIP） |
 
 **安全设计**：渲染进程启用 `contextIsolation` 与 `sandbox`、关闭 `nodeIntegration`，只通过限定的 preload API 与主进程通信；页面 CSP 禁止外部连接；禁止窗口导航和新窗口；IPC 校验调用方；歌曲信息全部以文本节点渲染，不执行 HTML。不启动本地 HTTP 服务，不加载任何外部网页。
 
@@ -101,12 +103,11 @@ npm.cmd ci
 ```powershell
 # 目录版（Electron + Python 服务），输出 release\win-unpacked\TankLoong.exe
 powershell -ExecutionPolicy Bypass -File .\build_release.ps1
-
-# 安装版，输出 release\TankLoong Setup 3.0.0.exe
-node node_modules\electron-builder\cli.js --win nsis --x64
 ```
 
 `release/win-unpacked/` 必须整目录分发（Electron、后端服务、FFmpeg 都在其中）。
+
+`npm.cmd run pack` 会把生成目录的 Windows 完整性级别设为标准 Medium，并检查资源及默认沙箱下的真实 EXE 启动。自动化工作区继承的 Low 完整性标记会导致 Electron 在应用代码执行前以 `0x80000003` 退出；此处理只作用于生成的发布目录。已有目录版可执行 `node tools/prepare-release.cjs` 后再运行 `node tools/check-startup.cjs` 验证。
 
 ## 验证
 
@@ -120,7 +121,8 @@ node tools\smoke-live.cjs               # 可选：发布包真实联网搜索 +
 当前记录的验证结果：
 
 - Python 测试 **29 passed**：真实编码、完整解码、中文路径、失败清理、同名不覆盖、大 stderr 不死锁。
-- Node 通信测试 **2 passed**。
+- Node 通信与资源路由测试 **5 passed**。
+- 2026-11-04 重新打包后，默认沙箱、不接调试器的原生 EXE 启动检查通过；发布包界面测试也在默认沙箱下通过，并用正常用户配置直接启动确认窗口正常加载。
 - Electron 界面测试通过：先选目录的限制、文本安全渲染、不可下载条目、失败重试、成功状态、迟到事件不回退、940px 小窗口不横向溢出。
 - 发布包联网实测：搜索「晴天」返回 16 条可下载结果，实际下载并生成 5,956,974 字节 MP3，用包内 FFmpeg 完整解码校验成功。
 

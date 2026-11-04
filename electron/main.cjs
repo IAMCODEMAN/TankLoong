@@ -1,12 +1,24 @@
-const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, protocol } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs/promises');
 const { Backend } = require('./bridge.cjs');
+const { APP_URL, createAssetHandler, validateAssets } = require('./assets.cjs');
+
+protocol.registerSchemesAsPrivileged([{ scheme: 'tankloong', privileges: {
+  standard: true, secure: true, supportFetchAPI: true, corsEnabled: true
+} }]);
 
 let window, backend, outputDirectory = '', searchBusy = false, jobs = 0, quitting = false;
 const completed = new Set();
-const root = path.resolve(__dirname, '..');
+const root = app.getAppPath();
 const settingsPath = () => path.join(app.getPath('userData'), 'settings.json');
+const startupLogPath = () => path.join(app.getPath('userData'), 'startup.log');
+async function startupLog(event, detail) {
+  try {
+    await fs.mkdir(app.getPath('userData'), { recursive: true });
+    await fs.appendFile(startupLogPath(), JSON.stringify({ time: new Date().toISOString(), event, detail }) + '\n', 'utf8');
+  } catch { /* Diagnostics must not replace the original startup error. */ }
+}
 
 function assertSender(event) {
   if (event.sender !== window?.webContents || event.senderFrame !== window.webContents.mainFrame) {
@@ -21,6 +33,10 @@ function handle(channel, callback) {
 }
 async function createWindow() {
   await fs.mkdir(app.getPath('userData'), { recursive: true });
+  const uiDirectory = path.join(root, 'ui');
+  await startupLog('starting', { version: app.getVersion(), appPath: root });
+  await validateAssets(uiDirectory);
+  protocol.handle('tankloong', createAssetHandler(uiDirectory, error => startupLog('asset-error', error.message)));
   const backendData = path.join(app.getPath('userData'), 'backend');
   await fs.mkdir(backendData, { recursive: true });
   const command = app.isPackaged ? path.join(process.resourcesPath, 'backend', 'tankloong-backend.exe') : path.join(root, '.venv', 'Scripts', 'python.exe');
@@ -42,6 +58,10 @@ async function createWindow() {
   });
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   window.webContents.on('will-navigate', event => event.preventDefault());
+  window.webContents.on('did-fail-load', (_event, code, description, url, isMainFrame) => {
+    if (isMainFrame) startupLog('load-failed', { code, description, url });
+  });
+  window.webContents.on('render-process-gone', (_event, details) => startupLog('renderer-exited', details));
   window.once('ready-to-show', () => window.show());
   window.on('close', event => {
     if (!quitting && jobs > 0) {
@@ -51,7 +71,8 @@ async function createWindow() {
       });
     }
   });
-  await window.loadFile(path.join(root, 'ui', 'index.html'));
+  await window.loadURL(APP_URL);
+  await startupLog('ui-loaded', APP_URL);
 }
 
 handle('app:initial', async () => {
@@ -96,6 +117,10 @@ handle('window:control', action => {
   if (action === 'maximize') window.isMaximized() ? window.unmaximize() : window.maximize();
   if (action === 'close') window.close();
 });
-app.whenReady().then(createWindow).catch(error => { dialog.showErrorBox('TankLoong 启动失败', error.message); app.quit(); });
+app.whenReady().then(createWindow).catch(async error => {
+  await startupLog('startup-failed', error.stack || error.message);
+  dialog.showErrorBox('TankLoong 启动失败', `${error.message}\n\n启动日志：${startupLogPath()}`);
+  app.quit();
+});
 app.on('window-all-closed', () => app.quit());
 app.on('before-quit', () => { if (quitting || !jobs) backend?.stop(); });
